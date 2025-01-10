@@ -11,11 +11,11 @@ but can also be used for a terminal.
 --]]
 
 --------- Global Vars ---------
-monitor = peripheral.wrap("left");
+monitor = peripheral.wrap("left")
 monitor.setTextScale(0.5)
 
 widgets = {}
-widgetCount = 0
+widgets.count = 0
 
 
 ---------- Program UI ---------
@@ -45,8 +45,8 @@ function create_button(name, x, y, onclick)
     button.fnc = onclick
 
     -- Add Button to Widget list:
-    widgetCount = widgetCount + 1
-    widgets[widgetCount] = button
+    widgets.count = widgets.count + 1
+    widgets[widgets.count] = button
 
     return button
 end
