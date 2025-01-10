@@ -26,7 +26,7 @@ function display_time(line)
     monitor.setCursorPos(1, line)
     monitor.write(gameTime)
 
-    monitor.setCursorPos(mintor.getSize() - string.len(realTime) + 1, line)
+    monitor.setCursorPos(monitor.getSize() - string.len(realTime) + 1, line)
     monitor.write(realTime)
 end
 
@@ -34,15 +34,20 @@ end
 ----------- Widgets -----------
 function create_button(name, x, y, onclick)
     local button = {}
+    local name_len = string.len(name)
 
     -- Create Button:
     button.type = "button"
     button.name = name
     button.startX = x
     button.startY = y
-    button.endX = x + string.len(name)
+    button.endX = x + name_len
     button.endY = y
-    button.fnc = onclick
+    button.fg = string.rep("0", name_len)
+    button.bg = string.rep("f", name_len)
+    button.activeFrames = 0
+    button.update = button_update
+    button.fnc = onclick or function() end
 
     -- Add Button to Widget list:
     widgets.count = widgets.count + 1
@@ -51,11 +56,32 @@ function create_button(name, x, y, onclick)
     return button
 end
 
+function button_update(button)
+    if button.activeFrames > 0 then
+        button.activeFrames = button.activeFrames - 1
+
+        if button.activeFrames == 0 then
+            button.bg = string.rep("f", string.len(button.name))
+        end
+    end
+end
+
+function click_button(button)
+    button.bg = string.rep("b", string.len(button.name))
+    button.activeFrames = 5
+    button.fnc()
+end
+
+function update_widgets()
+    for _, widget in ipairs(widgets) do
+        widget.update(widget)
+    end
+end
 
 function display_widgets()
     for _, widget in ipairs(widgets) do
         monitor.setCursorPos(widget.startX, widget.startY)
-        monitor.write(widget.name)
+        monitor.blit(widget.name, widget.fg, widget.bg)
     end
 end
 
@@ -69,8 +95,7 @@ end
 function handle_touch(x, y)
 	for _, widget in ipairs(widgets) do
 		if is_in_widget(x, y, widget) then
-			local click_fnc = widget.fnc or function() end
-			click_fnc()
+			click_button(widget)
 		end
 	end
 end
@@ -94,14 +119,20 @@ function main_loop()
         monitor.clear()
 
         display_time(1)
+        monitor.setCursorPos(1, 3)
+        monitor.write("Menu:")
+        monitor.setCursorPos(1, 4)
+        monitor.write("> ")
+
+        update_widgets()
         display_widgets()
 
-        sleep(1)
+        sleep(0.025)
     end
 end
 
 
 --------- Program Entry -------
-create_button("Test", 5, 3, function() print("Clicked on test button") end)
+create_button("[Do something]", 3, 4, function() print("Clicked on test button") end)
 
 parallel.waitForAll(main_loop, handle_events)
