@@ -70,7 +70,14 @@ function main_loop()
 end
 
 
---------- Program Entry -------
-widgets.createButton("[Do something]", 3, 4, function() print("Clicked on test button") end)
+----------- Actions -----------
+function toggle_door()
+    redstone.setOutput("right", true)
+    sleep(0.25)
+    redstone.setOutput("right", false)
+end
+
+-------- Program Entry --------
+widgets.createButton("[Toggle Cave Door]", 3, 4, toggle_door)
 
 parallel.waitForAll(main_loop, handle_events)
