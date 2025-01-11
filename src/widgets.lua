@@ -24,8 +24,7 @@ end
 
 function widgets.displayAll(screen)
     for _, widget in ipairs(widgets._buffer) do
-        screen.setCursorPos(widget.startX, widget.startY)
-        screen.blit(widget.name, widget.fg, widget.bg)
+        widget.draw(widget, screen)
     end
 end
 
@@ -51,6 +50,7 @@ function widgets.createButton(name, x, y, onclick)
     -- Create Button:
     button.type = "button"
     button.update = widgets.updateButton
+    button.draw = widgets.drawButton
     button.activeFrames = 0
 
     button.startX = x
@@ -78,6 +78,11 @@ function widgets.updateButton(button)
             button.bg = string.rep("f", string.len(button.name))
         end
     end
+end
+
+function widgets.drawButton(button, screen)
+    screen.setCursorPos(widget.startX, widget.startY)
+    screen.blit(widget.name, widget.fg, widget.bg)
 end
 
 function widgets.clickButton(button)
