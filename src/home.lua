@@ -29,6 +29,22 @@ function display_time(line)
     monitor.write(realTime)
 end
 
+function display_logo(line)
+    local logoName = "Home Monitor"
+    local logoLen = string.len(logoName)
+    local startX = (monitor.getSize() - logoLen) / 2
+
+    monitor.setCursorPos(startX, line)
+    monitor.blit(logoName, string.rep("2", logoLen), string.rep("7", logoLen))
+end
+
+function display_menu(line)
+    monitor.setCursorPos(1, line)
+    monitor.write("Menu:")
+    monitor.setCursorPos(1, line + 1)
+    monitor.write("> ")
+end
+
 
 -------- Event Handling -------
 function handle_touch(x, y)
@@ -41,14 +57,14 @@ end
 
 
 function handle_events()
-	while true do
-		local eventData = {os.pullEvent()}
-		local eventType = eventData[1]
+    while true do
+        local eventData = {os.pullEvent()}
+        local eventType = eventData[1]
 
-		if eventType == "monitor_touch" then
-			handle_touch(eventData[3], eventData[4])
-		end
-	end
+        if eventType == "monitor_touch" then
+            handle_touch(eventData[3], eventData[4])
+        end
+    end
 end
 
 
@@ -58,10 +74,8 @@ function main_loop()
         monitor.clear()
 
         display_time(1)
-        monitor.setCursorPos(1, 3)
-        monitor.write("Menu:")
-        monitor.setCursorPos(1, 4)
-        monitor.write("> ")
+        display_logo(3)
+        display_menu(5)
 
         widgets.updateAll()
         widgets.displayAll(monitor)
@@ -79,6 +93,6 @@ function toggle_door()
 end
 
 -------- Program Entry --------
-widgets.createButton("[Toggle Cave Door]", 3, 4, toggle_door)
+widgets.createButton("[Toggle Cave Door]", 3, 6, toggle_door)
 
 parallel.waitForAll(main_loop, handle_events)
