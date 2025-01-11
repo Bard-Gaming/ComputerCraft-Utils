@@ -34,7 +34,7 @@ end
 function display_logo(line)
     local logoName = "Home Monitor"
     local logoLen = string.len(logoName)
-    local startX = (monitor.getSize() - logoLen) / 2
+    local startX = (monitor.getSize() - logoLen) / 2 + 1
 
     monitor.setCursorPos(startX, line)
     monitor.blit(logoName, string.rep("2", logoLen), string.rep("7", logoLen))
