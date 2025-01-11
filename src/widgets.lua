@@ -81,8 +81,8 @@ function widgets.updateButton(button)
 end
 
 function widgets.drawButton(button, screen)
-    screen.setCursorPos(widget.startX, widget.startY)
-    screen.blit(widget.name, widget.fg, widget.bg)
+    screen.setCursorPos(button.startX, button.startY)
+    screen.blit(button.name, button.fg, button.bg)
 end
 
 function widgets.clickButton(button)
