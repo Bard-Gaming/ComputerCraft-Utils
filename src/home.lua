@@ -92,10 +92,10 @@ end
 ----------- Actions -----------
 function toggle_door(button)
     if button.isEnabled then
-        widgets.button.setName(button, "[Open Cave Door]")
+        widgets.button.setDefaultFGColor(button, colors.red)
         button.isEnabled = false
     else
-        widgets.button.setName(button, "[Close Cave Door]")
+        widgets.button.setDefaultFGColor(button, colors.lime)
         button.isEnabled = true
     end
 
@@ -106,10 +106,10 @@ end
 
 function toggle_mobs(button)
     if button.isEnabled then
-        widgets.button.setName(button, "[Enable Mob Spawners]")
+        widgets.button.setDefaultFGColor(button, colors.red)
         button.isEnabled = false
     else
-        widgets.button.setName(button, "[Disable Mob Spawners]")
+        widgets.button.setDefaultFGColor(button, colors.lime)
         button.isEnabled = true
     end
 
@@ -120,10 +120,12 @@ end
 
 
 -------- Program Entry --------
-local door_btn = widgets.button.create("[Open Cave Door]", 3, 6, toggle_door)
-local mob_btn = widgets.button.create("[Enable Mob Spawners]", 3, 7, toggle_mobs)
+local door_btn = widgets.button.create("[Basement Door]", 3, 6, toggle_door)
+local mob_btn = widgets.button.create("[Mob Spawners]", 3, 7, toggle_mobs)
 
+widgets.button.setDefaultFGColor(door_btn, colors.red)
 door_btn.isEnabled = false
+widgets.button.setDefaultFGColor(mob_btn, colors.red)
 mob_btn.isEnabled = false
 
 parallel.waitForAll(main_loop, handle_events)
