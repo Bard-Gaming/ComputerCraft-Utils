@@ -10,7 +10,8 @@ but can also be used for a terminal.
 
 --]]
 
-local widgets = require "widgets"
+--------- Dependencies --------
+local widgets = require "libs.widgets"
 
 --------- Global Vars ---------
 monitor = peripheral.wrap("left")
