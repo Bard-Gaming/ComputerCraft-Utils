@@ -13,9 +13,11 @@ but can also be used for a terminal.
 --------- Dependencies --------
 local widgets = require "libs.widgets"
 
+
 --------- Global Vars ---------
 monitor = peripheral.wrap("left")
 monitor.setTextScale(0.5)
+
 
 ---------- Program UI ---------
 function display_time(line)
@@ -41,8 +43,10 @@ end
 function display_menu(line)
     monitor.setCursorPos(1, line)
     monitor.write("Menu:")
-    monitor.setCursorPos(1, line + 1)
-    monitor.write("> ")
+    for i=1, 2 do
+        monitor.setCursorPos(1, line + i)
+        monitor.write("> ")
+    end
 end
 
 
@@ -92,7 +96,15 @@ function toggle_door()
     redstone.setOutput("right", false)
 end
 
+function toggle_mobs()
+    redstone.setOutput("back", true)
+    sleep(0.25)
+    redstone.setOutput("back", false)
+end
+
+
 -------- Program Entry --------
 widgets.createButton("[Toggle Cave Door]", 3, 6, toggle_door)
+widgets.createButton("[Toggle Mob Spawners]", 3, 7, toggle_mobs)
 
 parallel.waitForAll(main_loop, handle_events)
