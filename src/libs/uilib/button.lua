@@ -1,15 +1,15 @@
 --[[
 
-Button - Widgets Library
+Button - UI Library
 
 Implementation for Button
-widgets
+Widgets
 
 --]]
 
 --------- Dependencies --------
-local wBase = require "libs.widgets.base"
-local Widget = require "libs.widgets.widget"
+local UIBase = require "libs.uilib.base"
+local Widget = require "libs.uilib.widget"
 
 
 ---------- Class Init ---------
@@ -47,7 +47,7 @@ function Button:new(name, x, y, onclick)
     new_button.activeFrames = 0
 
     -- Add button to screen:
-    wBase.addWidget(new_button)
+    UIBase.addWidget(new_button)
 
     return new_button
 end

@@ -1,9 +1,9 @@
 --[[
 
-Widget - Wigets library
+Widget - UI library
 
 Implementation for Widget
-base class
+Base Class
 
 --]]
 

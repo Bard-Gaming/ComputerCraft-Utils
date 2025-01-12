@@ -11,7 +11,7 @@ but can also be used for a terminal.
 --]]
 
 --------- Dependencies --------
-local widgets = require "libs.widgets"
+local uilib = require "libs.uilib"
 
 
 --------- Global Vars ---------
@@ -52,7 +52,7 @@ end
 
 -------- Event Handling -------
 function handle_touch(x, y)
-    widgets.base.forEach(function(widget)
+    uilib.base.forEach(function(widget)
         if not widget:inWidget(x, y) then
             return
         end
@@ -85,8 +85,8 @@ function main_loop()
         display_logo(3)
         display_menu(6)
 
-        widgets.base.updateAll()
-        widgets.base.displayAll(monitor)
+        uilib.base.updateAll()
+        uilib.base.displayAll(monitor)
 
         sleep(0.025)
     end
@@ -124,8 +124,8 @@ end
 
 
 -------- Program Entry --------
-local door_btn = widgets.button:new("[Basement Door]", 3, 7, toggle_door)
-local mob_btn = widgets.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
+local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
+local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
 
 door_btn:setDefaultFGColor(colors.red)
 door_btn.isEnabled = false;
