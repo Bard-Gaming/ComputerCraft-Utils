@@ -53,12 +53,12 @@ end
 -------- Event Handling -------
 function handle_touch(x, y)
     widgets.base.forEach(function(widget)
-        if not widgets.base.inWidget(x, y, widget) then
+        if not widget:inWidget(x, y) then
             return
         end
 
         if widget.type == "button" then
-            widgets.button.click(widget)
+            widget:click()
         end
     end)
 end
@@ -96,10 +96,10 @@ end
 ----------- Actions -----------
 function toggle_door(button)
     if button.isEnabled then
-        widgets.button.setDefaultFGColor(button, colors.red)
+        button:setDefaultFGColor(colors.red)
         button.isEnabled = false
     else
-        widgets.button.setDefaultFGColor(button, colors.lime)
+        button:setDefaultFGColor(colors.lime)
         button.isEnabled = true
     end
 
@@ -110,10 +110,10 @@ end
 
 function toggle_mobs(button)
     if button.isEnabled then
-        widgets.button.setDefaultFGColor(button, colors.red)
+        button:setDefaultFGColor(colors.red)
         button.isEnabled = false
     else
-        widgets.button.setDefaultFGColor(button, colors.lime)
+        button:setDefaultFGColor(colors.lime)
         button.isEnabled = true
     end
 
@@ -124,12 +124,13 @@ end
 
 
 -------- Program Entry --------
-local door_btn = widgets.button.create("[Basement Door]", 3, 7, toggle_door)
-local mob_btn = widgets.button.create("[Mob Spawners]", 3, 8, toggle_mobs)
+local door_btn = widgets.button:new("[Basement Door]", 3, 7, toggle_door)
+local mob_btn = widgets.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
 
-widgets.button.setDefaultFGColor(door_btn, colors.red)
-door_btn.isEnabled = false
-widgets.button.setDefaultFGColor(mob_btn, colors.red)
+door_btn:setDefaultFGColor(colors.red)
+door_btn.isEnabled = false;
+
+mob_btn:setDefaultFGColor(colors.red)
 mob_btn.isEnabled = false
 
 parallel.waitForAll(main_loop, handle_events)

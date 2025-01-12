@@ -9,104 +9,117 @@ widgets
 
 --------- Dependencies --------
 local wBase = require "libs.widgets.base"
+local Widget = require "libs.widgets.widget"
 
 
---------- Global Vars ---------
-local wButton = {}
+---------- Class Init ---------
+local Button = Widget:new("button")
 
 
-------- Widget Creation -------
-function wButton.create(name, x, y, onclick)
+------- Button Creation -------
+function Button:new(name, x, y, onclick)
     local name_len = string.len(name)
+    local new_button = {}
 
-    local button = wBase.createWidget(
-        "button",           -- Type
-        x, y,               -- start position
-        x + name_len, y     -- end position
-    )
+    setmetatable(new_button, self)
 
-    -- Add Button process
-    button.update = wButton.update
-    button.draw = wButton.draw
-    button.activeFrames = 0
-    button.fnc = onclick or function() end
+    self.__index = self
+    new_button.name = name
+    new_button.onClick = onclick or function() end
 
-    -- Label:
-    button.name = name
+    -- Position:
+    new_button.startX = x
+    new_button.startY = y
+    new_button.endX = x + string.len(name)
+    new_button.endY = y
 
     -- Colors:
-    button.defaultFg = string.rep("0", name_len)
-    button.activeFg = string.rep("0", name_len)
+    new_button.defaultFg = string.rep("0", name_len)
+    new_button.defaultBg = string.rep("f", name_len)
 
-    button.defaultBg = string.rep("f", name_len)
-    button.activeBg = string.rep("b", name_len)
+    new_button.activeFg = string.rep("0", name_len)
+    new_button.activeBg = string.rep("b", name_len)
 
-    button.fg = button.defaultFg
-    button.bg = button.defaultBg
+    new_button.fg = new_button.defaultFg
+    new_button.bg = new_button.defaultBg
 
-    -- Add Button to list of Widgets:
-    wBase.addWidget(button)
+    -- Misc. Data:
+    new_button.activeFrames = 0
 
-    return button
+    -- Add button to screen:
+    wBase.addWidget(new_button)
+
+    return new_button
 end
 
 
--------- Widget Process -------
-function wButton.update(button)
-    if button.activeFrames == 0 then
-        button.fg = button.defaultFg
-        button.bg = button.defaultBg
+-------- Button Process -------
+function Button:update()
+    if self.activeFrames == 0 then
+        self.fg = self.defaultFg
+        self.bg = self.defaultBg
     end
 
-    if button.activeFrames > 0 then
-        button.activeFrames = button.activeFrames - 1
+    if self.activeFrames > 0 then
+        self.activeFrames = self.activeFrames - 1
     end
 end
 
-function wButton.draw(button, screen)
-    screen.setCursorPos(button.startX, button.startY)
-    screen.blit(button.name, button.fg, button.bg)
+function Button:draw(screen)
+    screen.setCursorPos(self.startX, self.startY)
+    screen.blit(self.name, self.fg, self.bg)
 end
 
 
--------- Widget Events --------
-function wButton.click(button)
+-------- Button Events --------
+function Button:click()
     -- Don't do anything if button has already been clicked
-    if button.activeFrames > 0 then
+    if self.activeFrames > 0 then
         return
     end
 
     -- Update activeFrames and visuals, then call user onclick fnc
-    button.activeFrames = 5
-    button.fg = button.activeFg
-    button.bg = button.activeBg
-    button.fnc(button)
+    self.activeFrames = 5
+    self.fg = self.activeFg
+    self.bg = self.activeBg
+    self:onClick()
 end
 
--------- Widget Utility -------
-local function colorToBlitStr(color, length)
+
+-------- Button Utility -------
+local function colorToBlitStr(color, str)
     local colorChar = colors.toBlit(color)
-    return string.rep(colorChar, length)
+
+    return string.rep(colorChar, string.len(str))
 end
 
-function wButton.setName(button, name)
-    local name_len = string.len(name)
+function Button:setName(name)
+    local old_len = string.len(self.name)
+    local new_len = string.len(name)
 
-    button.name = name
+    self.name = name
 
-    -- Update Colors:
-    button.defaultBg = string.rep(string.sub(button.defaultBg, 1, 1), name_len)
-    button.activeBg = string.rep(string.sub(button.activeBg, 1, 1), name_len)
+    -- Colors only need to be updated if there is a difference in length
+    if old_len == new_len then
+        return
+    end
 
-    button.fg = string.rep(string.sub(button.fg, 1, 1), name_len)
-    button.bg = string.rep(string.sub(button.bg, 1, 1), name_len)
+    -- Update colors
+    self.defaultFg = string.rep(string.sub(self.defaultFg, 1, 1), new_len)
+    self.defaultBg = string.rep(string.sub(self.defaultBg, 1, 1), new_len)
+
+    self.activeFg = string.rep(string.sub(self.activeFg, 1, 1), new_len)
+    self.activeBg = string.rep(string.sub(self.activeBg, 1, 1), new_len)
+
+    self.fg = string.rep(string.sub(self.fg, 1, 1), new_len)
+    self.bg = string.rep(string.sub(self.bg, 1, 1), new_len)
 end
 
--- Button Colors:
-function wButton.setDefaultFGColor(button, color) button.defaultFg = colorToBlitStr(color, string.len(button.name)) end
-function wButton.setActiveFGColor(button, color) button.activeFg = colorToBlitStr(color, string.len(button.name)) end
-function wButton.setDefaultBGColor(button, color) button.defaultBg = colorToBlitStr(color, string.len(button.name)) end
-function wButton.setActiveBGColor(button, color) button.activeBg = colorToBlitStr(color, string.len(button.name)) end
+function Button:setDefaultFGColor(color) self.defaultFg = colorToBlitStr(color, self.name) end
+function Button:setDefaultBGColor(color) self.defaultBg = colorToBlitStr(color, self.name) end
+function Button:setActiveFGColor(color)  self.activeFg  = colorToBlitStr(color, self.name) end
+function Button:setActiveBGColor(color)  self.activeBg  = colorToBlitStr(color, self.name) end
 
 
-return wButton
+--------- Class Yield ---------
+return Button

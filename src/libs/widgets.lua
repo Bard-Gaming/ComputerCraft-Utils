@@ -14,6 +14,7 @@ local widgets = {}
 
 ----------- Packages ----------
 widgets.base = require "libs.widgets.base"
+widgets.widget = require "libs.widgets.widget"
 widgets.button = require "libs.widgets.button"
 
 
