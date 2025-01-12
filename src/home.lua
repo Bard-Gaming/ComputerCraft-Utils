@@ -50,46 +50,10 @@ function display_menu(line)
 end
 
 
--------- Event Handling -------
-function handle_touch(x, y)
-    uilib.base.forEach(function(widget)
-        if not widget:inWidget(x, y) then
-            return
-        end
-
-        if widget.type == "button" then
-            widget:click()
-        end
-    end)
-end
-
-
-function handle_events()
-    while true do
-        local eventData = {os.pullEvent()}
-        local eventType = eventData[1]
-
-        if eventType == "monitor_touch" then
-            handle_touch(eventData[3], eventData[4])
-        end
-    end
-end
-
-
----------- Main Loop ----------
-function main_loop()
-    while true do
-        monitor.clear()
-
-        display_time(1)
-        display_logo(3)
-        display_menu(6)
-
-        uilib.base.updateAll()
-        uilib.base.displayAll(monitor)
-
-        sleep(0.025)
-    end
+function custom_display()
+    display_time(1)
+    display_logo(3)
+    display_menu(6)
 end
 
 
@@ -123,7 +87,7 @@ function toggle_mobs(button)
 end
 
 
--------- Program Entry --------
+-------- Program Setup --------
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
 local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
 
@@ -133,4 +97,5 @@ door_btn.isEnabled = false;
 mob_btn:setDefaultFGColor(colors.red)
 mob_btn.isEnabled = false
 
-parallel.waitForAll(main_loop, handle_events)
+uilib.base.hijackDisplay(custom_display)
+uilib.run(monitor)

@@ -10,7 +10,13 @@ shared utilities.
 --]]
 
 --------- Package Init --------
-local UIBase = { _buffer = {}, _count = 0 }
+local UIBase = {
+    _buffer = {},
+    _count = 0,
+    _screen = nil,
+    _customDisplay = nil,
+    isOpen = false
+}
 
 
 -------- Widget Process -------
@@ -26,6 +32,30 @@ function UIBase.addWidget(widget)
     UIBase._buffer[UIBase._count] = widget
 end
 
+function UIBase.hijackDisplay(displayFnc)
+    UIBase._customDisplay = displayFnc
+end
+
+
+------- Helper Functions ------
+local function handleTouch(x, y)
+    local lastWidget = nil
+
+    for _, widget in ipairs(UIBase._buffer) do
+        if widget:inWidget(x, y) and widget.type == "button" then
+            lastWidget = widget
+        end
+    end
+
+    if lastWidget == nil then
+        return
+    end
+
+    lastWidget:click()  -- Only click the last widget (frontmost widget)
+end
+
+
+-------- Widget Process -------
 function UIBase.updateAll()
     for _, widget in ipairs(UIBase._buffer) do
         widget:update()
@@ -38,11 +68,40 @@ function UIBase.displayAll(screen)
     end
 end
 
+function UIBase.appMainLoop(screen)
+    screen = screen or UIBase._screen  -- Use UIBase._screen as fallback
+    UIBase.isOpen = true
 
---------------------------------------------------------
-function UIBase.forEach(fnc)
-    for _, widget in ipairs(UIBase._buffer) do
-        fnc(widget)
+    if screen == nil then
+        printError("UI Lib: Tried running main loop without valid screen")
+        return
+    end
+
+    while UIBase.isOpen do
+        -- State Update
+        UIBase.updateAll()
+
+        -- Display
+        screen.clear()
+        if UIBase._customDisplay ~= nil then UIBase._customDisplay(screen) end
+        UIBase.displayAll(screen)
+
+        sleep(0.05)
+    end
+
+    screen.clear()
+end
+
+function UIBase.appEventLoop()
+    while true do
+        local eventData = { os.pullEventRaw() }
+        local type = eventData[1]
+
+        if type == "monitor_touch" then
+            handleTouch(eventData[3], eventData[4])
+        elseif type == "terminate" then
+            UIBase.isOpen = false -- Gracefully exit
+        end
     end
 end
 
