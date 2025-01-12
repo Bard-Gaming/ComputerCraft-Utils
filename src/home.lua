@@ -53,7 +53,11 @@ end
 -------- Event Handling -------
 function handle_touch(x, y)
     widgets.base.forEach(function(widget)
-        if widget.type == "button" and widgets.base.inWidget(x, y, widget) then
+        if not widgets.base.inWidget(x, y, widget) then
+            return
+        end
+
+        if widget.type == "button" then
             widgets.button.click(widget)
         end
     end)
@@ -79,7 +83,7 @@ function main_loop()
 
         display_time(1)
         display_logo(3)
-        display_menu(5)
+        display_menu(6)
 
         widgets.base.updateAll()
         widgets.base.displayAll(monitor)
@@ -120,8 +124,8 @@ end
 
 
 -------- Program Entry --------
-local door_btn = widgets.button.create("[Basement Door]", 3, 6, toggle_door)
-local mob_btn = widgets.button.create("[Mob Spawners]", 3, 7, toggle_mobs)
+local door_btn = widgets.button.create("[Basement Door]", 3, 7, toggle_door)
+local mob_btn = widgets.button.create("[Mob Spawners]", 3, 8, toggle_mobs)
 
 widgets.button.setDefaultFGColor(door_btn, colors.red)
 door_btn.isEnabled = false
