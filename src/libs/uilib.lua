@@ -15,6 +15,7 @@ local uilib = {}
 uilib.base = require "libs.uilib.base"
 uilib.widget = require "libs.uilib.widget"
 uilib.button = require "libs.uilib.button"
+uilib.text = require "libs.uilib.text"
 
 
 ------ Utility Functions ------
