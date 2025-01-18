@@ -45,7 +45,7 @@ end
 function display_menu(line)
     monitor.setCursorPos(1, line)
     monitor.write("Menu:")
-    for i=1, 2 do
+    for i=1, 3 do
         monitor.setCursorPos(1, line + i)
         monitor.write("> ")
     end
@@ -133,6 +133,19 @@ function toggle_mobs(button)
     update_button_display(button, "mob_spawners")
 end
 
+function toggle_rocket(button)
+    -- Rocket Controller:
+    local spawnerController = rednet.lookup("home_control", "rocket_door")
+    if spawnerController == nil then
+        printError("Rednet: Rocket Controller not found")
+        return
+    end
+
+    -- Send Message to rocket controller and update button with new state:
+    rednet.send(spawnerController, "toggle", "home_control")
+    update_button_display(button, "rocket_door")
+end
+
 
 -------- Program Setup --------
 rednet_init()
@@ -141,10 +154,12 @@ local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
 update_button_display(door_btn, "basement_door")
 app:addWidget(door_btn)
 
-
 local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
-update_button_display(door_btn, "mob_spawners")
+update_button_display(mob_btn, "mob_spawners")
 app:addWidget(mob_btn)
 
+local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_rocket)
+update_button_display(rocket_btn, "rocket_door")
+app:addWidget(rocket_btn)
 
 app:run()
