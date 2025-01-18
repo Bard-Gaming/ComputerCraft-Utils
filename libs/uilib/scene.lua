@@ -18,7 +18,7 @@ local UIScene = {
 
 
 -------- Scene Creation -------
-function UIScene:create()
+function UIScene:new()
     local new_scene = {}
 
     setmetatable(new_scene, self)

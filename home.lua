@@ -18,7 +18,7 @@ local uilib = require "libs.uilib"
 monitor = peripheral.wrap("left")
 monitor.setTextScale(0.5)
 
-app = uilib.app:create(monitor)
+app = uilib.app:new(monitor)
 
 
 ---------- Program UI ---------
@@ -127,8 +127,9 @@ rednet.host("home_control", "root")
 
 
 -- Scene setup
-local main_scene = uilib.scene:create()
+local main_scene = uilib.scene:new()
 
+-- Menu
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_button)
 door_btn.hostname = "basement_door"
 update_button_display(door_btn)

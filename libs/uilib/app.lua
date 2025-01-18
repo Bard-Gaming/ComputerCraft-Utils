@@ -20,7 +20,7 @@ local UIApp = {
 
 
 --------- App Creation --------
-function UIApp:create(screen)
+function UIApp:new(screen)
     local app = {}
 
     setmetatable(app, self)
