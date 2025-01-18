@@ -62,8 +62,7 @@ end
 
 ------------ Rednet -----------
 function rednet_init()
-    rednet.open("back")
-    rednet.host("home_control", "root")
+
 end
 
 function rednet_get_state(hostname)
@@ -122,21 +121,29 @@ end
 
 
 -------- Program Setup --------
-rednet_init()
+-- Initialize Rednet
+rednet.open("back")
+rednet.host("home_control", "root")
+
+
+-- Scene setup
+local main_scene = uilib.scene:create()
 
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_button)
 door_btn.hostname = "basement_door"
 update_button_display(door_btn)
-app:addWidget(door_btn)
+main_scene:addWidget(door_btn)
 
 local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_button)
 mob_btn.hostname = "mob_spawners"
 update_button_display(mob_btn)
-app:addWidget(mob_btn)
+main_scene:addWidget(mob_btn)
 
 local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_button)
 rocket_btn.hostname = "rocket_door"
 update_button_display(rocket_btn)
-app:addWidget(rocket_btn)
+main_scene:addWidget(rocket_btn)
 
+-- Run App
+app:setScene(main_scene)
 app:run()

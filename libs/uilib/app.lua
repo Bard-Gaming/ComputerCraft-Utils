@@ -11,8 +11,7 @@ here.
 
 ---------- Class Init ---------
 local UIApp = {
-    widgetBuffer = {},
-    widgetCount = 0,
+    scene = nil,
     screen = nil,
     isOpen = false,
     updateDelay = 0.05,  -- time the program sleeps before next iteration of mainloop
@@ -36,15 +35,13 @@ end
 
 --------- App Process ---------
 function UIApp:update()
-    for _, widget in ipairs(self.widgetBuffer) do
-        widget:update()  -- assumes all tables in widgetBuffer are widgets
-    end
+    if self.scene == nil then return end
+    self.scene:update()
 end
 
 function UIApp:display()
-    for _, widget in ipairs(self.widgetBuffer) do
-        widget:draw(self.screen)  -- assumes all tables in widgetBuffer are widgets
-    end
+    if self.scene == nil then return end
+    self.scene:display(self.screen)
 end
 
 function UIApp:mainLoop()
@@ -75,8 +72,11 @@ function UIApp:eventLoop()
 end
 
 function UIApp:run()
-    self.isOpen = true
+    if self.scene == nil then
+        printError("UI Lib: Warning: Running app without setting scene.")
+    end
 
+    self.isOpen = true
     parallel.waitForAll(function() self:mainLoop() end, function() self:eventLoop() end)
 end
 
@@ -92,7 +92,7 @@ function UIApp.events.monitor_touch(app, eventData)
     local x, y = eventData[3], eventData[4]
     local lastWidget = nil
 
-    for _, widget in ipairs(app.widgetBuffer) do
+    for _, widget in ipairs(app.scene.widgetBuffer) do
         if widget:inWidget(x, y) and widget.type == "button" then
             lastWidget = widget
         end
@@ -105,16 +105,12 @@ end
 
 
 ----------- Widgets -----------
-function UIApp:addWidget(widget)
-    -- Check if widget is an actual widget
-    if not widget._isWidget then
-        printError("UI Lib: Tried adding value that isn't a widget")
-        return  -- continue with warning
+function UIApp:setScene(scene)
+    if scene._isScene ~= true then
+        error("UI Lib: Tried setting app scene to an invalid scene")
     end
 
-    -- Add widget to widget buffer
-    self.widgetCount = self.widgetCount + 1
-    self.widgetBuffer[self.widgetCount] = widget
+    self.scene = scene
 end
 
 
