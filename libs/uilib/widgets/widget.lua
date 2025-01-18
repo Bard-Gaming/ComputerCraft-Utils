@@ -16,9 +16,9 @@ function Widget:new(type, startX, startY, endX, endY)
     local new_widget = {}
 
     setmetatable(new_widget, self)
+    self.__index = self
 
     -- Add Widget Data:
-    self.__index = self
     new_widget.type = type or "generic"
     new_widget.startX = startX or 0
     new_widget.startY = startY or 0
