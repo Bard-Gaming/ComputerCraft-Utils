@@ -89,6 +89,8 @@ function UIApp.events.terminate(app, eventData)
 end
 
 function UIApp.events.monitor_touch(app, eventData)
+    if app.scene == nil then return end
+
     local x, y = eventData[3], eventData[4]
     local lastWidget = nil
 
