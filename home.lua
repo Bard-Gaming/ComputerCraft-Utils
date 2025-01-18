@@ -18,6 +18,8 @@ local uilib = require "libs.uilib"
 monitor = peripheral.wrap("left")
 monitor.setTextScale(0.5)
 
+disk_drive = peripheral.wrap("right")
+
 app = uilib.app:new(monitor)
 
 
@@ -60,11 +62,18 @@ function app:display(screen)
 end
 
 
------------- Rednet -----------
-function rednet_init()
+------------ Events -----------
+function update_music_display(app)
+    local music_text = app.scene.widgetBuffer[4]
 
+    music_text:setText(disk_drive.getAudioTitle() or "Insert Music Disc")
 end
 
+app.events.disk = update_music_display
+app.events.disk_eject = update_music_display
+
+
+------------ Rednet -----------
 function rednet_get_state(hostname)
     local controller = rednet.lookup("home_control", hostname)
     if controller == nil then
@@ -107,16 +116,30 @@ function update_button_display(button)
 end
 
 function toggle_button(button)
-    -- Rocket Controller:
+    -- Component Controller:
     local controller = rednet.lookup("home_control", button.hostname)
     if controller == nil then
         printError("Rednet: controller \"" .. button.hostname .. "\" not found")
         return
     end
 
-    -- Send Message to rocket controller and update button with new state:
+    -- Send Message to controller and update button with new state:
     rednet.send(controller, "toggle", "home_control")
     update_button_display(button, button.hostname)
+end
+
+function toggle_music(button)
+    if not disk_drive.hasAudio() then return end
+
+    button.is_on = not button.is_on  -- update state
+
+    if button.is_on then
+        disk_drive.playAudio()
+        button:setName("||")
+    else
+        disk_drive.stopAudio()
+        button:setName("|>")
+    end
 end
 
 
@@ -126,24 +149,38 @@ rednet.open("back")
 rednet.host("home_control", "root")
 
 
--- Scene setup
-local main_scene = uilib.scene:new()
-
 -- Menu
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_button)
 door_btn.hostname = "basement_door"
 update_button_display(door_btn)
-main_scene:addWidget(door_btn)
 
 local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_button)
 mob_btn.hostname = "mob_spawners"
 update_button_display(mob_btn)
-main_scene:addWidget(mob_btn)
 
 local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_button)
 rocket_btn.hostname = "rocket_door"
 update_button_display(rocket_btn)
+
+
+-- Music
+local music_display = uilib.text:new("unknown", 45, 7)
+music_display:alignCenter()
+music_display:setText(disk_drive.getAudioTitle() or "Insert Music Disc")
+
+local music_btn = uilib.button:new("|>", 45, 9, toggle_music)
+music_btn.is_on = false
+
+
+-- Scene setup
+local main_scene = uilib.scene:new()
+
+main_scene:addWidget(door_btn)
+main_scene:addWidget(mob_btn)
 main_scene:addWidget(rocket_btn)
+main_scene:addWidget(music_display)
+main_scene:addWidget(music_btn)
+
 
 -- Run App
 app:setScene(main_scene)
