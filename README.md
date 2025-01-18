@@ -44,7 +44,7 @@ local app = uilib.app:new(term.native())
 local scene = uilib.scene:new()
 local button = uilib.button:new("[Cool Button]", 5, 3)  -- create at given position
 
-scene:addWidget(button)
+scene:addWidget(button)  -- add the button to our scene
 
 app:setScene(scene)
 app:run()
