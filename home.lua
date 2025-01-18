@@ -60,46 +60,90 @@ function app:display(screen)
 end
 
 
------------ Actions -----------
-function toggle_door(button)
-    if button.isEnabled then
-        button:setDefaultFGColor(colors.red)
-        button.isEnabled = false
-    else
-        button:setDefaultFGColor(colors.lime)
-        button.isEnabled = true
+------------ Rednet -----------
+function rednet_init()
+    rednet.open("back")
+    rednet.host("home_control", "root")
+end
+
+function rednet_get_state(hostname)
+    local controller = rednet.lookup("home_control", hostname)
+    if controller == nil then
+        printError("Rednet: Controller not found")
+        return
     end
 
-    redstone.setOutput("right", true)
-    sleep(0.25)
-    redstone.setOutput("right", false)
+    -- Send get request:
+    rednet.send(controller, "state", "home_control")
+
+    -- Handle received message:
+    local _, state = rednet.receive("home_control", 1)
+    state = state or "unknown"
+
+    -- Return result:
+    if state == "on" then
+        return true
+    elseif state == "off" then
+        return false
+    else
+        printError("Rednet: Unrecognized message \"" .. state .. "\"")
+        return
+    end
+end
+
+
+----------- Actions -----------
+function update_button_display(button, hostname)
+    local isOpen = rednet_get_state(hostname)
+    if isOpen == nil then
+        return  -- propagate error
+    end
+
+    -- Update logic:
+    if isOpen then
+        button:setDefaultFGColor(colors.lime)
+    else
+        button:setDefaultFGColor(colors.red)
+    end
+end
+
+function toggle_door(button)
+    -- Door Controller:
+    local doorController = rednet.lookup("home_control", "basement_door")
+    if doorController == nil then
+        printError("Rednet: Door Controller not found")
+        return
+    end
+
+    -- Send Message to door controller and update button with new state:
+    rednet.send(doorController, "toggle", "home_control")
+    update_button_display(button, "basement_door")
 end
 
 function toggle_mobs(button)
-    if button.isEnabled then
-        button:setDefaultFGColor(colors.red)
-        button.isEnabled = false
-    else
-        button:setDefaultFGColor(colors.lime)
-        button.isEnabled = true
+    -- Spawner Controller:
+    local spawnerController = rednet.lookup("home_control", "mob_spawners")
+    if spawnerController == nil then
+        printError("Rednet: Spawner Controller not found")
+        return
     end
 
-    redstone.setOutput("back", true)
-    sleep(0.25)
-    redstone.setOutput("back", false)
+    -- Send Message to spawner controller and update button with new state:
+    rednet.send(spawnerController, "toggle", "home_control")
+    update_button_display(button, "mob_spawners")
 end
 
 
 -------- Program Setup --------
+rednet_init()
+
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
-door_btn:setDefaultFGColor(colors.red)
-door_btn.isEnabled = false;
+update_button_display(door_btn, "basement_door")
 app:addWidget(door_btn)
 
 
 local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
-mob_btn:setDefaultFGColor(colors.red)
-mob_btn.isEnabled = false
+update_button_display(door_btn, "mob_spawners")
 app:addWidget(mob_btn)
 
 
