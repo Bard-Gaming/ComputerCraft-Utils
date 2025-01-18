@@ -93,8 +93,8 @@ end
 
 
 ----------- Actions -----------
-function update_button_display(button, hostname)
-    local isOpen = rednet_get_state(hostname)
+function update_button_display(button)
+    local isOpen = rednet_get_state(button.hostname)
     if isOpen == nil then
         return  -- propagate error
     end
@@ -107,59 +107,36 @@ function update_button_display(button, hostname)
     end
 end
 
-function toggle_door(button)
-    -- Door Controller:
-    local doorController = rednet.lookup("home_control", "basement_door")
-    if doorController == nil then
-        printError("Rednet: Door Controller not found")
-        return
-    end
-
-    -- Send Message to door controller and update button with new state:
-    rednet.send(doorController, "toggle", "home_control")
-    update_button_display(button, "basement_door")
-end
-
-function toggle_mobs(button)
-    -- Spawner Controller:
-    local spawnerController = rednet.lookup("home_control", "mob_spawners")
-    if spawnerController == nil then
-        printError("Rednet: Spawner Controller not found")
-        return
-    end
-
-    -- Send Message to spawner controller and update button with new state:
-    rednet.send(spawnerController, "toggle", "home_control")
-    update_button_display(button, "mob_spawners")
-end
-
-function toggle_rocket(button)
+function toggle_button(button)
     -- Rocket Controller:
-    local spawnerController = rednet.lookup("home_control", "rocket_door")
-    if spawnerController == nil then
-        printError("Rednet: Rocket Controller not found")
+    local controller = rednet.lookup("home_control", button.hostname)
+    if controller == nil then
+        printError("Rednet: controller \"" .. button.hostname .. "\" not found")
         return
     end
 
     -- Send Message to rocket controller and update button with new state:
-    rednet.send(spawnerController, "toggle", "home_control")
-    update_button_display(button, "rocket_door")
+    rednet.send(controller, "toggle", "home_control")
+    update_button_display(button, button.hostname)
 end
 
 
 -------- Program Setup --------
 rednet_init()
 
-local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
-update_button_display(door_btn, "basement_door")
+local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_button)
+door_btn.hostname = "basement_door"
+update_button_display(door_btn)
 app:addWidget(door_btn)
 
-local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
-update_button_display(mob_btn, "mob_spawners")
+local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_button)
+mob_btn.hostname = "mob_spawners"
+update_button_display(mob_btn)
 app:addWidget(mob_btn)
 
-local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_rocket)
-update_button_display(rocket_btn, "rocket_door")
+local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_button)
+rocket_btn.hostname = "rocket_door"
+update_button_display(rocket_btn)
 app:addWidget(rocket_btn)
 
 app:run()
