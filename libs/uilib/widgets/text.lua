@@ -8,8 +8,7 @@ widget class
 --]]
 
 --------- Dependencies --------
-local UIBase = require "libs.uilib.base"
-local Widget = require "libs.uilib.widget"
+local Widget = require "libs.uilib.widgets.widget"
 
 
 ---------- Class Init ---------

@@ -8,8 +8,7 @@ Widgets
 --]]
 
 --------- Dependencies --------
-local UIBase = require "libs.uilib.base"
-local Widget = require "libs.uilib.widget"
+local Widget = require "libs.uilib.widgets.widget"
 
 
 ---------- Class Init ---------
@@ -22,8 +21,8 @@ function Button:new(name, x, y, onclick)
     local new_button = {}
 
     setmetatable(new_button, self)
-
     self.__index = self
+
     new_button.name = name
     new_button.onClick = onclick or function() end
 
@@ -45,9 +44,6 @@ function Button:new(name, x, y, onclick)
 
     -- Misc. Data:
     new_button.activeFrames = 0
-
-    -- Add button to screen:
-    UIBase.addWidget(new_button)
 
     return new_button
 end

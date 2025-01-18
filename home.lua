@@ -18,6 +18,8 @@ local uilib = require "libs.uilib"
 monitor = peripheral.wrap("left")
 monitor.setTextScale(0.5)
 
+app = uilib.app:create(monitor)
+
 
 ---------- Program UI ---------
 function display_time(line)
@@ -50,10 +52,11 @@ function display_menu(line)
 end
 
 
-function custom_display()
+function app:display(screen)
     display_time(1)
     display_logo(3)
     display_menu(6)
+    app.super.display(app)
 end
 
 
@@ -89,13 +92,15 @@ end
 
 -------- Program Setup --------
 local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_door)
-local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
-
 door_btn:setDefaultFGColor(colors.red)
 door_btn.isEnabled = false;
+app:addWidget(door_btn)
 
+
+local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_mobs)
 mob_btn:setDefaultFGColor(colors.red)
 mob_btn.isEnabled = false
+app:addWidget(mob_btn)
 
-uilib.base.hijackDisplay(custom_display)
-uilib.run(monitor)
+
+app:run()
