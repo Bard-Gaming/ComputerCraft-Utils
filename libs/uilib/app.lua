@@ -25,8 +25,8 @@ function UIApp:new(screen)
 
     setmetatable(app, self)
     self.__index = self
-    app.super = self  -- useful for overrides
 
+    app.super = self  -- useful for overrides
     app.screen = screen or term.native()
 
     return app
@@ -51,7 +51,7 @@ function UIApp:mainLoop()
 
         -- Draw everything on the screen
         self.screen.clear()
-        self.display()
+        self:display()
 
         -- Sleep
         sleep(self.udpateDelay)
