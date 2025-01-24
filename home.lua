@@ -55,9 +55,11 @@ end
 
 
 function app:display(screen)
-    display_time(1)
-    display_logo(3)
-    display_menu(6)
+    if app.scene == app.main_scene then
+        display_time(1)
+        display_logo(3)
+        display_menu(6)
+    end
     app.super.display(app)
 end
 
@@ -101,33 +103,6 @@ end
 
 
 ----------- Actions -----------
-function update_button_display(button)
-    local isOpen = rednet_get_state(button.hostname)
-    if isOpen == nil then
-        return  -- propagate error
-    end
-
-    -- Update logic:
-    if isOpen then
-        button:setDefaultFGColor(colors.lime)
-    else
-        button:setDefaultFGColor(colors.red)
-    end
-end
-
-function toggle_button(button)
-    -- Component Controller:
-    local controller = rednet.lookup("home_control", button.hostname)
-    if controller == nil then
-        printError("Rednet: controller \"" .. button.hostname .. "\" not found")
-        return
-    end
-
-    -- Send Message to controller and update button with new state:
-    rednet.send(controller, "toggle", "home_control")
-    update_button_display(button, button.hostname)
-end
-
 function toggle_music(button)
     if not disk_drive.hasAudio() then return end
 
@@ -143,6 +118,79 @@ function toggle_music(button)
 end
 
 
+--------- Menu Buttons --------
+local MenuButton = uilib.button:new(".", 0, 0)
+
+function MenuButton:new(name, hostname, x, y)
+    local newButton = {}
+
+    setmetatable(newButton, self)
+    self.__index = self
+
+    newButton.startX = x
+    newButton.startY = y
+    newButton.endX = x + string.len(name)
+    newButton.endY = y
+
+    newButton:setName(name)
+    newButton.hostname = hostname
+    newButton:updateDisplayDynamic()
+
+    return newButton
+end
+
+function MenuButton:onClick()
+    -- Component Controller:
+    local controller = rednet.lookup("home_control", self.hostname)
+    if controller == nil then
+        printError("Rednet: controller \"" .. self.hostname .. "\" not found")
+        return
+    end
+
+    -- Send Message to controller and update button with new state:
+    rednet.send(controller, "toggle", "home_control")
+    self:updateDisplayDynamic()
+end
+
+function MenuButton:queryState()
+    local controller = rednet.lookup("home_control", self.hostname)
+
+    if controller == nil then
+        printError("Rednet: Controller for \"" .. self.hostname .. "\" not found")
+        return
+    end
+
+    -- Send get request:
+    rednet.send(controller, "state", "home_control")
+
+    -- Retrieve message:
+    local _, state = rednet.receive("home_control", 1)
+    state = state or "no response"
+
+    -- Handle invalid message:
+    if state ~= "on" and state ~= "off" then
+        printError("Rednet: Unrecognized state (\"" .. state .. "\")")
+        return nil
+    end
+
+    -- Return boolean representation of value
+    return state == "on"
+end
+
+function MenuButton:updateDisplayDynamic()  -- Update display by querying state
+    local isEnabled = self:queryState()
+
+    -- If an invalid state is received, don't do anything (error already displayed)
+    if isEnabled == nil then
+        return
+    end
+
+    local newColor = isEnabled and colors.lime or colors.red  -- lime if enabled, else red
+
+    self:setDefaultFGColor(newColor)
+end
+
+
 -------- Program Setup --------
 -- Initialize Rednet
 rednet.open("back")
@@ -150,17 +198,11 @@ rednet.host("home_control", "root")
 
 
 -- Menu
-local door_btn = uilib.button:new("[Basement Door]", 3, 7, toggle_button)
-door_btn.hostname = "basement_door"
-update_button_display(door_btn)
+local power_btn = uilib.button:new("[@]", 50, 24, toggle_power)
 
-local mob_btn = uilib.button:new("[Mob Spawners]", 3, 8, toggle_button)
-mob_btn.hostname = "mob_spawners"
-update_button_display(mob_btn)
-
-local rocket_btn = uilib.button:new("[Rocket Exit]", 3, 9, toggle_button)
-rocket_btn.hostname = "rocket_door"
-update_button_display(rocket_btn)
+local doorButton = MenuButton:new("[Basement Door]", "basement_door", 3, 7)
+local mobButton = MenuButton:new("[Mob Spawners]", "mob_spawners", 3, 8)
+local rocketButton = MenuButton:new("[Rocket Exit]", "rocket_door", 3, 9)
 
 
 -- Music
@@ -172,16 +214,23 @@ local music_btn = uilib.button:new("|>", 45, 9, toggle_music)
 music_btn.is_on = false
 
 
--- Scene setup
-local main_scene = uilib.scene:new()
+-- Main Scene
+app.main_scene = uilib.scene:new()
 
-main_scene:addWidget(door_btn)
-main_scene:addWidget(mob_btn)
-main_scene:addWidget(rocket_btn)
-main_scene:addWidget(music_display)
-main_scene:addWidget(music_btn)
+app.main_scene:addWidget(power_btn)
+app.main_scene:addWidget(doorButton)
+app.main_scene:addWidget(mobButton)
+app.main_scene:addWidget(rocketButton)
+app.main_scene:addWidget(music_display)
+app.main_scene:addWidget(music_btn)
+
+
+-- Off Scene
+app.off_scene = uilib.scene:new()
+
+app.off_scene:addWidget(power_btn)
 
 
 -- Run App
-app:setScene(main_scene)
+app:setScene(app.off_scene)
 app:run()
