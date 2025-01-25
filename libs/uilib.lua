@@ -11,16 +11,22 @@ setup of ui library :>
 local uilib = {}
 
 
----------- Variables ----------
+------- Package Require -------
 local uilibPath = ...
+local globalRequire = require
+require = function(path) return globalRequire(uilibPath .. "." .. path) end
 
 
 ----------- Packages ----------
-uilib.app     =  require(uilibPath .. ".app")
-uilib.scene   =  require(uilibPath .. ".scene")
-uilib.widget  =  require(uilibPath .. ".widgets.widget")
-uilib.button  =  require(uilibPath .. ".widgets.button")
-uilib.text    =  require(uilibPath .. ".widgets.text")
+uilib.app     =  require("app")
+uilib.scene   =  require("scene")
+uilib.widget  =  require("widgets.widget")
+uilib.button  =  require("widgets.button")
+uilib.text    =  require("widgets.text")
+
+
+------------ Cleanup ----------
+require = globalRequire  -- revert the require function so it works as intended
 
 
 ----------- Interface ---------
