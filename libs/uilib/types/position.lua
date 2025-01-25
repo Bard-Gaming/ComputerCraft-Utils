@@ -8,7 +8,7 @@ class
 --]]
 
 ---------- Class Init ---------
-local UIPosition = {
+local Position = {
     startX = 0,
     startY = 0,
     endX = 0,
@@ -18,7 +18,7 @@ local UIPosition = {
 
 
 ------- Widget Creation -------
-function UIPosition:new(startX, startY, endX, endY)
+function Position:new(startX, startY, endX, endY)
     local newPosition = {}
 
     setmetatable(newPosition, self)
@@ -36,7 +36,7 @@ end
 
 
 ----------- Utility -----------
-function UIPosition:isInside(x, y)
+function Position:isInside(x, y)
     return
         self.startX <= x and x <= self.endX and
         self.startY <= y and y <= self.endY
@@ -44,35 +44,36 @@ end
 
 
 ---------- Alignment ----------
-function UIPosition:alignLeft()
+function Position:alignLeft()
     if self.alignment == "left" then return end
+    local width = self.endX - self.startX
 
     if self.alignment == "center" then
-        local offset = math.floor(self.width / 2)
+        local offset = math.floor(width / 2)
         self.startX = self.startX + offset
         self.endX = self.endX + offset
 
     elseif self.alignment == "right" then
         self.startX = self.endX
-        self.endX = self.endX + self.width
+        self.endX = self.endX + width
 
     end
 
     self.alignment = "left"
 end
 
-function UIPosition:alignCenter()
+function Position:alignCenter()
     if self.alignment == "center" then return end
     self:alignLeft()  -- reset alignment
 
-    local offset = math.floor(self.width / 2)
+    local offset = math.floor(width / 2)
     self.startX = self.startX - offset
     self.endX = self.endX - offset
 
     self.alignment = "center"
 end
 
-function UIPosition:alignRight()
+function Position:alignRight()
     if self.alignment == "right" then return end
     self:alignLeft()  -- reset alignment
 
@@ -84,4 +85,4 @@ end
 
 
 --------- Class Yield ---------
-return UIPosition
+return Position
