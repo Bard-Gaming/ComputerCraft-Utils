@@ -8,24 +8,22 @@ Base Class
 --]]
 
 ---------- Class Init ---------
+local Position = require "types.position"
 local Widget = { _isWidget = true }  -- mark widget table for error handling
 
 
 ------- Widget Creation -------
-function Widget:new(type, startX, startY, endX, endY)
-    local new_widget = {}
+function Widget:new(type, x, y, width, height)
+    local newWidget = {}
 
-    setmetatable(new_widget, self)
+    setmetatable(newWidget, self)
     self.__index = self
 
     -- Add Widget Data:
-    new_widget.type = type or "generic"
-    new_widget.startX = startX or 0
-    new_widget.startY = startY or 0
-    new_widget.endX = endX or 0
-    new_widget.endY = endY or 0
+    newWidget.type = type or "generic"
+    newWidget.position = Position:new(x, y, width, height)
 
-    return new_widget
+    return newWidget
 end
 
 
@@ -41,9 +39,7 @@ end
 
 ----------- Utility -----------
 function Widget:inWidget(x, y)
-    return
-        self.startX <= x and x <= self.endX and
-        self.startY <= y and y <= self.endY
+    return self.position:isInside(x, y)
 end
 
 

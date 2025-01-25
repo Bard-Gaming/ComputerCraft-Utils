@@ -10,7 +10,7 @@ here.
 --]]
 
 ---------- Class Init ---------
-local UIApp = {
+local App = {
     scene = nil,
     screen = nil,
     isOpen = false,
@@ -20,31 +20,31 @@ local UIApp = {
 
 
 --------- App Creation --------
-function UIApp:new(screen)
-    local app = {}
+function App:new(screen)
+    local newApp = {}
 
-    setmetatable(app, self)
+    setmetatable(newApp, self)
     self.__index = self
 
-    app.super = self  -- useful for overrides
-    app.screen = screen or term.native()
+    newApp.super = self  -- useful for overrides
+    newApp.screen = screen or term.native()
 
-    return app
+    return newApp
 end
 
 
 --------- App Process ---------
-function UIApp:update()
+function App:update()
     if self.scene == nil then return end
     self.scene:update()
 end
 
-function UIApp:display()
+function App:display()
     if self.scene == nil then return end
     self.scene:display(self.screen)
 end
 
-function UIApp:mainLoop()
+function App:mainLoop()
     while self.isOpen do
         -- Update State
         self:update()
@@ -60,7 +60,7 @@ function UIApp:mainLoop()
     screen.clear()
 end
 
-function UIApp:eventLoop()
+function App:eventLoop()
     while self.isOpen do
         local eventData = { os.pullEventRaw() }  -- handle terminate ourselves
         local eventType = eventData[1]
@@ -71,7 +71,7 @@ function UIApp:eventLoop()
     end
 end
 
-function UIApp:run()
+function App:run()
     if self.scene == nil then
         printError("UI Lib: Warning: Running app without setting scene.")
     end
@@ -82,13 +82,13 @@ end
 
 
 ---------- App Events ---------
-function UIApp.events.terminate(app, eventData)
+function App.events.terminate(app, eventData)
     app.isOpen = false
     app.screen.clear()
     printError("UILib: Terminated.")
 end
 
-function UIApp.events.monitor_touch(app, eventData)
+function App.events.monitor_touch(app, eventData)
     if app.scene == nil then return end
 
     local x, y = eventData[3], eventData[4]
@@ -107,7 +107,7 @@ end
 
 
 ----------- Widgets -----------
-function UIApp:setScene(scene)
+function App:setScene(scene)
     if scene._isScene ~= true then
         error("UI Lib: Tried setting app scene to an invalid scene")
     end
@@ -117,4 +117,4 @@ end
 
 
 --------- Class Yield ---------
-return UIApp
+return App

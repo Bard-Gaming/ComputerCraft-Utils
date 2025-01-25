@@ -8,7 +8,8 @@ Widgets
 --]]
 
 --------- Dependencies --------
-local Widget = require "libs.uilib.widgets.widget"
+local Position = require "types.position"
+local Widget = require "widgets.widget"
 
 
 ---------- Class Init ---------
@@ -27,10 +28,7 @@ function Button:new(name, x, y, onclick)
     newButton.onClick = onclick or function() end
 
     -- Position:
-    newButton.startX = x
-    newButton.startY = y
-    newButton.endX = x + string.len(name)
-    newButton.endY = y
+    newButton.position = Position:new(x, y, string.len(name), 0)
 
     -- Colors:
     newButton.defaultFg = string.rep("0", nameLen)
@@ -62,7 +60,7 @@ function Button:update()
 end
 
 function Button:draw(screen)
-    screen.setCursorPos(self.startX, self.startY)
+    screen.setCursorPos(self.position.startX, self.position.startY)
     screen.blit(self.name, self.fg, self.bg)
 end
 
@@ -78,6 +76,7 @@ function Button:click()
     self.activeFrames = 5
     self.fg = self.activeFg
     self.bg = self.activeBg
+    print("buttontest")
     self:onClick()
 end
 
@@ -95,10 +94,13 @@ function Button:setName(name)
 
     self.name = name
 
-    -- Colors only need to be updated if there is a difference in length
+    -- Everything past this point only needs to be updated if there has been a change in length
     if oldLen == newLen then
         return
     end
+
+    -- Update widget size
+    self.position:setSize(newLen)
 
     -- Update colors
     self.defaultFg = string.rep(string.sub(self.defaultFg, 1, 1), newLen)
