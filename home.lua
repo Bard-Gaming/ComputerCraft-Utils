@@ -55,11 +55,9 @@ end
 
 
 function app:display(screen)
-    if app.scene == app.main_scene then
-        display_time(1)
-        display_logo(3)
-        display_menu(6)
-    end
+    display_time(1)
+    display_logo(3)
+    display_menu(6)
     app.super.display(app)
 end
 
@@ -106,9 +104,9 @@ end
 function toggle_music(button)
     if not disk_drive.hasAudio() then return end
 
-    button.is_on = not button.is_on  -- update state
+    button.isOn = not button.isOn  -- update state
 
-    if button.is_on then
+    if button.isOn then
         disk_drive.playAudio()
         button:setName("||")
     else
@@ -122,15 +120,10 @@ end
 local MenuButton = uilib.button:new(".", 0, 0)
 
 function MenuButton:new(name, hostname, x, y)
-    local newButton = {}
+    local newButton = uilib.button:new(name, x, y, self.onClick)
 
     setmetatable(newButton, self)
     self.__index = self
-
-    newButton.startX = x
-    newButton.startY = y
-    newButton.endX = x + string.len(name)
-    newButton.endY = y
 
     newButton:setName(name)
     newButton.hostname = hostname
@@ -198,39 +191,30 @@ rednet.host("home_control", "root")
 
 
 -- Menu
-local power_btn = uilib.button:new("[@]", 50, 24, toggle_power)
-
 local doorButton = MenuButton:new("[Basement Door]", "basement_door", 3, 7)
 local mobButton = MenuButton:new("[Mob Spawners]", "mob_spawners", 3, 8)
 local rocketButton = MenuButton:new("[Rocket Exit]", "rocket_door", 3, 9)
 
 
 -- Music
-local music_display = uilib.text:new("unknown", 45, 7)
-music_display:alignCenter()
-music_display:setText(disk_drive.getAudioTitle() or "Insert Music Disc")
+local musicDisplay = uilib.text:new("unknown", 45, 7)
+musicDisplay.position:alignCenter()
+musicDisplay:setText(disk_drive.getAudioTitle() or "Insert Music Disc")
 
-local music_btn = uilib.button:new("|>", 45, 9, toggle_music)
-music_btn.is_on = false
+local musicButton = uilib.button:new("|>", 45, 9, toggle_music)
+musicButton.isOn = false
 
 
 -- Main Scene
-app.main_scene = uilib.scene:new()
+app.mainScene = uilib.scene:new()
 
-app.main_scene:addWidget(power_btn)
-app.main_scene:addWidget(doorButton)
-app.main_scene:addWidget(mobButton)
-app.main_scene:addWidget(rocketButton)
-app.main_scene:addWidget(music_display)
-app.main_scene:addWidget(music_btn)
-
-
--- Off Scene
-app.off_scene = uilib.scene:new()
-
-app.off_scene:addWidget(power_btn)
+app.mainScene:addWidget(doorButton)
+app.mainScene:addWidget(mobButton)
+app.mainScene:addWidget(rocketButton)
+app.mainScene:addWidget(musicDisplay)
+app.mainScene:addWidget(musicButton)
 
 
 -- Run App
-app:setScene(app.off_scene)
+app:setScene(app.mainScene)
 app:run()
