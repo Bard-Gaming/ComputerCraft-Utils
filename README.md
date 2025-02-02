@@ -53,3 +53,22 @@ app:run()
 This should be enough to get an app running that has a button, which automatically
 detects when a user clicks on it (and plays a nice animation!).
 Note that the colors that are used for the button can be changed anytime.
+
+Now, let's add some actual functionality to our button:
+```lua
+local uilib = require "libs.uilib"
+rednet.open("top")  -- open rednet through top modem
+
+local function do_action()
+    rednet.broadcast("hello!")
+end
+
+local app = uilib.app:new(term.native())
+local scene = uilib.scene:new()
+local button = uilib.button:new("[Cool Button]", 5, 3, do_action)  -- create at given position with do_action as onclick function
+
+scene:addWidget(button)  -- add the button to our scene
+
+app:setScene(scene)
+app:run()
+```
