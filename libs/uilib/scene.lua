@@ -45,6 +45,17 @@ end
 
 
 ----------- Widgets -----------
+function UIScene:forEachWidget(fnc)
+    if fnc == nil then return end
+
+    for i=self.widgetCount,1,-1 do  -- reversed order (last elements are drawn last)
+        local out = fnc(self.widgetBuffer[i])
+
+        -- Stop if the given fonction returns false:
+        if out == false then return end
+    end
+end
+
 function UIScene:addWidget(widget)
     -- Check if widget is valid
     if not widget._isWidget then

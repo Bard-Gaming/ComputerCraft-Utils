@@ -92,17 +92,16 @@ function App.events.monitor_touch(app, eventData)
     if app.scene == nil then return end
 
     local x, y = eventData[3], eventData[4]
-    local lastWidget = nil
 
-    for _, widget in ipairs(app.scene.widgetBuffer) do
+    app.scene:forEachWidget(function(widget)
+        -- Call the button's click function if it is the element being clicked
         if widget:inWidget(x, y) and widget.type == "button" then
-            lastWidget = widget
+            widget:click()
+            return false  -- stop iterating
         end
-    end
 
-    if lastWidget == nil then return end
-
-    lastWidget:click()  -- Only click the last widget (frontmost widget)
+        return true  -- continue iterating
+    end)
 end
 
 
